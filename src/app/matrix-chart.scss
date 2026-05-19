@@ -95,7 +95,17 @@
   }
 }
 .matrix-chart-container {
-  /* Ensure your existing container code has transition for smooth theme swapping */
+  position: relative;
+  width: 100%;
+  height: 400px;
+  /* Make the base background semi-transparent */
+  background-color: rgba(11, 15, 25, 0.4);
+  /* Add a blur so the chart lines are still readable over the avatar */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
   transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
 
   /* --- DYNAMIC THEMES --- */
@@ -105,16 +115,17 @@
 
   &.theme-neon-gold {
     box-shadow: 0 0 40px rgba(249, 212, 35, 0.4);
-    background-color: #1a1705; /* Deep dark gold/brown tint */
+    /* Transparent gold tint */
+    background-color: rgba(26, 23, 5, 0.6);
     border: 1px solid rgba(249, 212, 35, 0.2);
   }
 
   &.theme-dark-rain {
     box-shadow: 0 0 40px rgba(0, 100, 255, 0.2);
-    background-color: #030a14; /* Dreary deep blue */
+    /* Transparent deep blue tint */
+    background-color: rgba(3, 10, 20, 0.6);
     border: 1px solid rgba(0, 100, 255, 0.1);
 
-    /* Optional: make the tooltip look "glitchy" or rainy on bad days */
     .html-tooltip {
       border-color: rgba(0, 100, 255, 0.4);
     }
