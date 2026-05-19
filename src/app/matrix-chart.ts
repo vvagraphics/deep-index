@@ -1,4 +1,4 @@
-import { Component, computed, input, signal } from '@angular/core';
+import { Component, computed, input, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 export interface DataPoint {
@@ -26,15 +26,18 @@ export class MatrixChartComponent {
   mouseX = signal<number>(0);
   mouseY = signal<number>(0);
 
-  // FIXED: Safer max calculation for empty datasets
+  timeSliderValue = signal<number>(0);
+
+  
+  
   maxCommits = computed(() => {
     const commits = this.data().map(d => d.commits);
-    return commits.length ? Math.max(...commits) : 1;
+    return commits.length ? Math.max(1, ...commits) : 1; 
   });
 
   maxEfficiency = computed(() => {
     const scores = this.data().map(d => d.efficiencyScore);
-    return scores.length ? Math.max(...scores) : 1;
+    return scores.length ? Math.max(1, ...scores) : 1; 
   });
 
   mappedPoints = computed(() => {
@@ -53,6 +56,38 @@ export class MatrixChartComponent {
 
   commitsPath = computed(() => this.generateSmoothPath(this.mappedPoints().map(p => ({ x: p.cx, y: p.cyCommits }))));
   efficiencyPath = computed(() => this.generateSmoothPath(this.mappedPoints().map(p => ({ x: p.cx, y: p.cyEfficiency }))));
+
+  currentTheme = computed(() => {
+    const point = this.activePoint();
+    if (!point) return 'theme-neutral';
+    
+    // Adjust these thresholds based on how your mock data looks!
+    if (point.efficiencyScore >= 75) return 'theme-neon-gold'; 
+    if (point.efficiencyScore <= 45) return 'theme-dark-rain'; 
+    return 'theme-neutral';
+  });
+
+  // NEW: Listen to slider changes and update the active point programmatically
+  onSliderChange(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const index = parseInt(input.value, 10);
+    this.timeSliderValue.set(index);
+
+    const points = this.mappedPoints();
+    if (points && points[index]) {
+      const selected = points[index];
+      // Move the vertical line and update the tooltip data
+      this.hoverX.set(selected.cx);
+      this.activePoint.set({ 
+        date: selected.date, 
+        commits: selected.commits, 
+        efficiencyScore: selected.efficiencyScore 
+      });
+      // Snap tooltip near the line vertically centered
+      this.mouseX.set(selected.cx);
+      this.mouseY.set(this.height / 2);
+    }
+  }
 
   // Generates Cubic Bezier curve string for smooth SVG lines
   private generateSmoothPath(points: { x: number; y: number }[]): string {

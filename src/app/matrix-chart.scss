@@ -94,3 +94,72 @@
     }
   }
 }
+.matrix-chart-container {
+  /* Ensure your existing container code has transition for smooth theme swapping */
+  transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+
+  /* --- DYNAMIC THEMES --- */
+  &.theme-neutral {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  }
+
+  &.theme-neon-gold {
+    box-shadow: 0 0 40px rgba(249, 212, 35, 0.4);
+    background-color: #1a1705; /* Deep dark gold/brown tint */
+    border: 1px solid rgba(249, 212, 35, 0.2);
+  }
+
+  &.theme-dark-rain {
+    box-shadow: 0 0 40px rgba(0, 100, 255, 0.2);
+    background-color: #030a14; /* Dreary deep blue */
+    border: 1px solid rgba(0, 100, 255, 0.1);
+
+    /* Optional: make the tooltip look "glitchy" or rainy on bad days */
+    .html-tooltip {
+      border-color: rgba(0, 100, 255, 0.4);
+    }
+  }
+
+  /* --- TIME MACHINE SLIDER --- */
+  .time-machine-controls {
+    padding: 15px 20px;
+    background: rgba(0, 0, 0, 0.4);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    label {
+      color: #94a3b8;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .cyber-slider {
+      flex-grow: 1;
+      -webkit-appearance: none;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      outline: none;
+
+      &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #00f2fe;
+        cursor: pointer;
+        box-shadow: 0 0 10px #00f2fe;
+        transition: transform 0.1s;
+
+        &:hover {
+          transform: scale(1.2);
+        }
+      }
+    }
+  }
+}

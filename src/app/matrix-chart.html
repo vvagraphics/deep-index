@@ -1,6 +1,6 @@
-<div class="matrix-chart-container">
+<div class="matrix-chart-container" [ngClass]="currentTheme()">
     <svg [attr.viewBox]="'0 0 ' + width + ' ' + height" preserveAspectRatio="none" (mousemove)="onMouseMove($event)"
-        (mouseleave)="onMouseLeave()">
+        (mouseleave)="onMouseLeave()" class="select-none">
 
         <defs>
             <linearGradient id="neonCommits" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -39,5 +39,11 @@
             <span>Efficiency:</span>
             <strong class="val-bold">{{ point.efficiencyScore }}%</strong>
         </div>
+    </div>
+
+    <div class="time-machine-controls" *ngIf="mappedPoints().length > 0">
+        <label>Time Machine Scrub:</label>
+        <input type="range" [min]="0" [max]="mappedPoints().length - 1" [value]="timeSliderValue()"
+            (input)="onSliderChange($event)" class="cyber-slider">
     </div>
 </div>
