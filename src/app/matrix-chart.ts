@@ -1,4 +1,3 @@
-// --- TYPES & INTERFACES ---
 import { Component, computed, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -8,15 +7,14 @@ export interface DataPoint {
   efficiencyScore: number;
 }
 
-// --- COMPONENT CONFIG & DECORATORS ---
 @Component({
   selector: 'app-matrix-chart',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './matrix-chart.html'
+  templateUrl: './matrix-chart.html',
+  styleUrl: './matrix-chart.scss' // <-- FIXED: Added stylesheet link
 })
 export class MatrixChartComponent {
-  // --- STATE, SIGNALS & INITIALIZATION ---
   data = input<DataPoint[]>([]);
 
   width = 800;
@@ -28,8 +26,16 @@ export class MatrixChartComponent {
   mouseX = signal<number>(0);
   mouseY = signal<number>(0);
 
-  maxCommits = computed(() => Math.max(...this.data().map(d => d.commits), 1));
-  maxEfficiency = computed(() => Math.max(...this.data().map(d => d.efficiencyScore), 1));
+  // FIXED: Safer max calculation for empty datasets
+  maxCommits = computed(() => {
+    const commits = this.data().map(d => d.commits);
+    return commits.length ? Math.max(...commits) : 1;
+  });
+
+  maxEfficiency = computed(() => {
+    const scores = this.data().map(d => d.efficiencyScore);
+    return scores.length ? Math.max(...scores) : 1;
+  });
 
   mappedPoints = computed(() => {
     const dataset = this.data();
@@ -37,20 +43,18 @@ export class MatrixChartComponent {
 
     const xStep = (this.width - this.padding * 2) / (dataset.length - 1 || 1);
 
-    return dataset.map((point, index) => {
-      return {
-        ...point,
-        cx: this.padding + (index * xStep),
-        cyCommits: this.height - this.padding - ((point.commits / this.maxCommits()) * (this.height - this.padding * 2)),
-        cyEfficiency: this.height - this.padding - ((point.efficiencyScore / this.maxEfficiency()) * (this.height - this.padding * 2))
-      };
-    });
+    return dataset.map((point, index) => ({
+      ...point,
+      cx: this.padding + (index * xStep),
+      cyCommits: this.height - this.padding - ((point.commits / this.maxCommits()) * (this.height - this.padding * 2)),
+      cyEfficiency: this.height - this.padding - ((point.efficiencyScore / this.maxEfficiency()) * (this.height - this.padding * 2))
+    }));
   });
 
   commitsPath = computed(() => this.generateSmoothPath(this.mappedPoints().map(p => ({ x: p.cx, y: p.cyCommits }))));
   efficiencyPath = computed(() => this.generateSmoothPath(this.mappedPoints().map(p => ({ x: p.cx, y: p.cyEfficiency }))));
 
-  // --- NATIVE API INTEGRATION LOOP ---
+  // Generates Cubic Bezier curve string for smooth SVG lines
   private generateSmoothPath(points: { x: number; y: number }[]): string {
     if (points.length === 0) return '';
     if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
@@ -65,7 +69,6 @@ export class MatrixChartComponent {
     return path;
   }
 
-  // --- EVENT HANDLERS & VALIDATION ---
   onMouseMove(event: MouseEvent) {
     const svgElement = event.currentTarget as SVGSVGElement;
     const pt = svgElement.createSVGPoint();
@@ -74,6 +77,7 @@ export class MatrixChartComponent {
     
     const svgP = pt.matrixTransform(svgElement.getScreenCTM()?.inverse());
 
+    // Fix tooltips slightly offset from the exact mouse coordinates
     this.mouseX.set(event.clientX);
     this.mouseY.set(event.clientY);
 

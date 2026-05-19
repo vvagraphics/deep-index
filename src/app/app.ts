@@ -1,51 +1,25 @@
-// --- TYPES & INTERFACES ---
-import { Component, computed, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { MatrixChartComponent, DataPoint } from './matrix-chart';
+import { DeepIndexService } from './services/deep-index.service';
 
-interface SystemLog extends DataPoint {
-  weather: string;
-  geomagneticStorm: boolean;
-}
-
-// --- COMPONENT CONFIG & DECORATORS ---
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, MatrixChartComponent],
-  templateUrl: './app.html'
+  imports: [MatrixChartComponent],
+  template: `
+    <div style="padding: 50px;">
+      <h1 style="color: #00f2fe; font-family: monospace;">DeepIndex // Neural Link Active</h1>
+      <app-matrix-chart [data]="liveData()"></app-matrix-chart>
+    </div>
+  `
 })
-export class App {
-  // --- STATE, SIGNALS & INITIALIZATION ---
-  historicalLogs = signal<SystemLog[]>([
-    { date: '2026-05-12', commits: 5, efficiencyScore: 45, weather: 'Thunderstorm', geomagneticStorm: true },
-    { date: '2026-05-13', commits: 18, efficiencyScore: 92, weather: 'Clear Sky', geomagneticStorm: false },
-    { date: '2026-05-14', commits: 22, efficiencyScore: 96, weather: 'Clear Sky', geomagneticStorm: false },
-    { date: '2026-05-15', commits: 8, efficiencyScore: 60, weather: 'Heavy Rain', geomagneticStorm: false },
-    { date: '2026-05-16', commits: 2, efficiencyScore: 30, weather: 'Solar Flare Active', geomagneticStorm: true },
-    { date: '2026-05-17', commits: 14, efficiencyScore: 78, weather: 'Overcast', geomagneticStorm: false },
-    { date: '2026-05-18', commits: 29, efficiencyScore: 99, weather: 'Clear Sky', geomagneticStorm: false }
-  ]);
+export class AppComponent implements OnInit {
+  dataService = inject(DeepIndexService);
+  liveData = signal<DataPoint[]>([]);
 
-  timeIndex = signal<number>(6); // Default to latest day index
-
-  activeLog = computed(() => this.historicalLogs()[this.timeIndex()]);
-
-  // Reactive Matrix Engine Flair Theme: High productivity glows gold, poor conditions triggers stormy matrix theme
-  currentTheme = computed(() => {
-    const log = this.activeLog();
-    if (!log) return 'rainy';
-    return log.efficiencyScore >= 85 ? 'neon-gold' : 'dark-rainy';
-  });
-
-  // Dynamic sliced window passing to matrix chart up to selected time machine mark
-  chartDataWindow = computed(() => {
-    return this.historicalLogs().slice(0, this.timeIndex() + 1);
-  });
-
-  // --- EVENT HANDLERS & VALIDATION ---
-  onTimeSliderChange(event: Event) {
-    const target = event.target as HTMLInputElement;
-    this.timeIndex.set(parseInt(target.value, 10));
+  async ngOnInit() {
+    // Fetch live data on load and update the signal!
+    const data = await this.dataService.fetchDashboardData();
+    this.liveData.set(data);
   }
 }
