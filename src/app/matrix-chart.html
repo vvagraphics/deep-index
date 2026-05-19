@@ -1,0 +1,48 @@
+<div class="matrix-chart-container">
+    <svg [attr.viewBox]="'0 0 ' + width + ' ' + height" preserveAspectRatio="none" (mousemove)="onMouseMove($event)"
+        (mouseleave)="onMouseLeave()" class="select-none">
+        <defs>
+            <linearGradient id="neonCommits" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#00f2fe" />
+                <stop offset="100%" stop-color="#4facfe" />
+            </linearGradient>
+            <linearGradient id="neonEfficiency" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#f83600" />
+                <stop offset="100%" stop-color="#f9d423" />
+            </linearGradient>
+        </defs>
+
+        <line [attr.x1]="padding" [attr.y1]="height/2" [attr.x2]="width-padding" [attr.y2]="height/2"
+            stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="4" />
+        <line [attr.x1]="padding" [attr.y1]="padding" [attr.x2]="width-padding" [attr.y2]="padding"
+            stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="4" />
+        <line [attr.x1]="padding" [attr.y1]="height-padding" [attr.x2]="width-padding" [attr.y2]="height-padding"
+            stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="4" />
+
+        <path [attr.d]="efficiencyPath()" fill="none" stroke="url(#neonEfficiency)" stroke-width="3"
+            stroke-linecap="round" stroke-linejoin="round" class="transition-path"
+            style="filter: drop-shadow(0px 0px 8px rgba(249,212,35,0.6));" />
+        <path [attr.d]="commitsPath()" fill="none" stroke="url(#neonCommits)" stroke-width="3" stroke-linecap="round"
+            stroke-linejoin="round" class="transition-path"
+            style="filter: drop-shadow(0px 0px 8px rgba(79,172,254,0.6));" />
+
+        <line *ngIf="hoverX() !== null" [attr.x1]="hoverX()" [attr.y1]="padding" [attr.x2]="hoverX()"
+            [attr.y2]="height - padding" stroke="rgba(255,255,255,0.4)" stroke-width="1" stroke-dasharray="6"
+            class="pointer-events-none" />
+    </svg>
+
+    <div *ngIf="activePoint() as point" [style.left.px]="mouseX() + 20" [style.top.px]="mouseY() - 40"
+        class="html-tooltip">
+        <div class="tooltip-date">{{ point.date }}</div>
+        <div class="tooltip-row">
+            <span class="dot blue"></span>
+            <span>Commits:</span>
+            <strong class="val-bold">{{ point.commits }}</strong>
+        </div>
+        <div class="tooltip-row">
+            <span class="dot yellow"></span>
+            <span>Efficiency:</span>
+            <strong class="val-bold">{{ point.efficiencyScore }}%</strong>
+        </div>
+    </div>
+</div>
