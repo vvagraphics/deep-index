@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { createClient, SupabaseClient } from '@supabase/supabase-js'; 
 import { DataPoint } from '../matrix-chart'; 
-import { environment } from '../../environments/environment.local';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
