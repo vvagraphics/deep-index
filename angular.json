@@ -29,11 +29,17 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.scss"
-            ]
+            "styles": ["src/styles.scss"]
           },
           "configurations": {
+            "local": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.local.ts"
+                }
+              ]
+            },
             "production": {
               "budgets": [
                 {
@@ -60,6 +66,9 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "configurations": {
+            "local": {
+              "buildTarget": "deep-index:build:local"
+            },
             "production": {
               "buildTarget": "deep-index:build:production"
             },

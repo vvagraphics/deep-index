@@ -12,7 +12,7 @@ export interface DataPoint {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './matrix-chart.html',
-  styleUrl: './matrix-chart.scss' // <-- FIXED: Added stylesheet link
+  styleUrl: './matrix-chart.scss'
 })
 export class MatrixChartComponent {
   data = input<DataPoint[]>([]);
@@ -27,8 +27,6 @@ export class MatrixChartComponent {
   mouseY = signal<number>(0);
 
   timeSliderValue = signal<number>(0);
-
-  
   
   maxCommits = computed(() => {
     const commits = this.data().map(d => d.commits);
@@ -67,7 +65,7 @@ export class MatrixChartComponent {
     return 'theme-neutral';
   });
 
-  // NEW: Listen to slider changes and update the active point programmatically
+  // Listen to slider changes and update the active point programmatically
   onSliderChange(event: Event) {
     const input = event.target as HTMLInputElement;
     const index = parseInt(input.value, 10);
@@ -83,9 +81,14 @@ export class MatrixChartComponent {
         commits: selected.commits, 
         efficiencyScore: selected.efficiencyScore 
       });
-      // Snap tooltip near the line vertically centered
-      this.mouseX.set(selected.cx);
-      this.mouseY.set(this.height / 2);
+      
+      // Map SVG viewBox coordinates to actual DOM container width/height
+      const container = document.querySelector('.matrix-chart-container');
+      const containerWidth = container ? container.clientWidth : this.width;
+      const containerHeight = container ? container.clientHeight : this.height;
+
+      this.mouseX.set((selected.cx / this.width) * containerWidth);
+      this.mouseY.set(containerHeight / 2);
     }
   }
 
@@ -106,15 +109,29 @@ export class MatrixChartComponent {
 
   onMouseMove(event: MouseEvent) {
     const svgElement = event.currentTarget as SVGSVGElement;
+    
+    // Calculate exact coordinates relative to the chart container
+    const container = svgElement.closest('.matrix-chart-container');
+    if (container) {
+      const rect = container.getBoundingClientRect();
+      let calculatedX = event.clientX - rect.left;
+      
+      // Check if tooltip is too close to the right edge (prevent mobile overflow)
+      if (calculatedX + 170 > rect.width) {
+        calculatedX -= 160; // Flip it to the left of the cursor
+      } else {
+        calculatedX += 20;  // Standard right offset
+      }
+
+      this.mouseX.set(calculatedX);
+      this.mouseY.set(event.clientY - rect.top);
+    }
+
     const pt = svgElement.createSVGPoint();
     pt.x = event.clientX;
     pt.y = event.clientY;
     
     const svgP = pt.matrixTransform(svgElement.getScreenCTM()?.inverse());
-
-    // Fix tooltips slightly offset from the exact mouse coordinates
-    this.mouseX.set(event.clientX);
-    this.mouseY.set(event.clientY);
 
     const points = this.mappedPoints();
     if (points.length === 0) return;
@@ -134,6 +151,7 @@ export class MatrixChartComponent {
     this.activePoint.set({ date: closest.date, commits: closest.commits, efficiencyScore: closest.efficiencyScore });
   }
 
+  // THIS FUNCTION WAS MISSING/MISPLACED
   onMouseLeave() {
     this.hoverX.set(null);
     this.activePoint.set(null);

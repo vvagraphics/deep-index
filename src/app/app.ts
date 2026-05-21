@@ -15,6 +15,7 @@ import { DeepIndexService } from './services/deep-index.service';
          [style.opacity]="(powerLevel() / 100) * 0.15 + 0.05"> </div>
 
     <div class="dashboard-wrapper">
+      
       <header class="solar-header">
         <div class="title-container">
             <img *ngIf="userProfile()" [src]="userProfile().avatar_url" class="mini-avatar" alt="profile">
@@ -29,12 +30,21 @@ import { DeepIndexService } from './services/deep-index.service';
         </div>
       </header>
 
+      <div class="system-goal-panel">
+        <p class="app-description">
+          <strong>SYSTEM GOAL:</strong> DeepIndex correlates raw developer output (GitHub commits) against localized environmental telemetry and Solar Geomagnetic Storm data to predict optimal coding efficiency cycles.
+        </p>
+      </div>
+
       <div class="search-console">
+        <label for="github-input" class="input-label">Target GitHub Username:</label>
+        
         <div class="input-group">
           <input 
+            id="github-input"
             type="text" 
             [(ngModel)]="searchInput" 
-            placeholder="Paste GitHub Username..."
+            placeholder="e.g. torvalds (type your GitHub name here)..."
             (keyup.enter)="runScan(searchInput())"
           >
           <button (click)="runScan(searchInput())" [disabled]="isLoading()">
@@ -56,6 +66,11 @@ import { DeepIndexService } from './services/deep-index.service';
     </div>
   `,
   styles: [`
+    /* --- PREVENT MOBILE OVERFLOW --- */
+    .dashboard-wrapper, .dashboard-wrapper * {
+      box-sizing: border-box;
+    }
+
     /* --- THE FIRE AVATAR BACKGROUND --- */
     .avatar-ghost {
       position: fixed;
@@ -64,13 +79,13 @@ import { DeepIndexService } from './services/deep-index.service';
       background-position: center;
       z-index: -1;
       pointer-events: none;
-      /* This filter turns any normal photo into a glowing fiery hologram */
       filter: grayscale(100%) sepia(100%) hue-rotate(350deg) saturate(600%) blur(15px);
       transition: opacity 1s ease-in-out;
     }
 
     /* --- LAYOUT & STYLES --- */
     .dashboard-wrapper {
+      width: 100%;
       max-width: 900px;
       margin: 0 auto;
       padding: 40px 20px;
@@ -78,10 +93,11 @@ import { DeepIndexService } from './services/deep-index.service';
       color: #e2e8f0;
       position: relative;
       z-index: 1;
+      overflow-x: hidden; /* Prevents horizontal scroll clipping */
     }
 
     .solar-header {
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       background: rgba(10, 5, 0, 0.7);
       padding: 20px;
       border-radius: 12px;
@@ -93,7 +109,6 @@ import { DeepIndexService } from './services/deep-index.service';
       display: flex;
       align-items: center;
       gap: 15px;
-      margin-bottom: 15px;
     }
 
     .mini-avatar {
@@ -102,6 +117,7 @@ import { DeepIndexService } from './services/deep-index.service';
       border-radius: 50%;
       border: 2px solid #ffaa00;
       box-shadow: 0 0 15px #ffaa00;
+      flex-shrink: 0;
     }
 
     .solar-header h1 {
@@ -110,11 +126,14 @@ import { DeepIndexService } from './services/deep-index.service';
       letter-spacing: 2px;
       margin: 0;
       text-shadow: 0 0 20px rgba(255, 170, 0, 0.8);
+      font-size: 1.8rem;
     }
 
     /* --- DYNAMIC POWER METER --- */
     .power-meter-container {
       margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid rgba(255, 170, 0, 0.2);
     }
     .power-label {
       font-size: 0.85rem;
@@ -141,6 +160,28 @@ import { DeepIndexService } from './services/deep-index.service';
       transition: width 1.5s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
+    /* --- SYSTEM GOAL PANEL (Now separated) --- */
+    .system-goal-panel {
+      margin-bottom: 30px;
+    }
+    .app-description {
+      background: rgba(20, 10, 0, 0.8);
+      border: 1px solid rgba(255, 170, 0, 0.3);
+      border-left: 4px solid #ffaa00;
+      padding: 15px 20px;
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      border-radius: 4px;
+      color: #cbd5e1;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    .app-description strong {
+      color: #ffea00;
+      letter-spacing: 1px;
+    }
+    
     /* --- CONTROLS --- */
     .search-console {
       background: rgba(20, 10, 0, 0.8);
@@ -150,13 +191,24 @@ import { DeepIndexService } from './services/deep-index.service';
       margin-bottom: 30px;
       backdrop-filter: blur(10px);
     }
+    .input-label {
+      display: block;
+      margin-bottom: 10px;
+      color: #ffaa00;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-size: 0.85rem;
+    }
     .input-group {
       display: flex;
       gap: 10px;
       margin-bottom: 15px;
+      width: 100%;
     }
     input {
       flex: 1;
+      width: 100%;
       padding: 12px;
       background: rgba(0,0,0,0.5);
       border: 1px solid #ffaa00;
@@ -178,6 +230,7 @@ import { DeepIndexService } from './services/deep-index.service';
       font-weight: bold;
       transition: all 0.2s;
       text-transform: uppercase;
+      white-space: nowrap; /* Prevents button text from breaking awkwardly */
     }
     button:hover:not([disabled]) {
       background: #ffaa00;
@@ -189,9 +242,10 @@ import { DeepIndexService } from './services/deep-index.service';
       font-size: 0.8rem;
       align-items: center;
       color: #94a3b8;
+      flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
     }
     .preset-users button {
-      padding: 5px 10px;
+      padding: 6px 12px;
       background: rgba(255, 85, 0, 0.1);
       border: 1px solid rgba(255, 170, 0, 0.3);
       font-size: 0.75rem;
@@ -208,6 +262,34 @@ import { DeepIndexService } from './services/deep-index.service';
       border-left: 3px solid #ff3333;
     }
 
+    /* --- MOBILE RESPONSIVENESS REFINED --- */
+    @media (max-width: 600px) {
+      .dashboard-wrapper {
+        padding: 15px 10px; /* Reduced outer padding for more screen space */
+      }
+      .title-container {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+      }
+      .solar-header h1 {
+        font-size: 1.3rem;
+      }
+      .input-group {
+        flex-direction: column;
+      }
+      button {
+        width: 100%;
+        padding: 15px; /* Larger tap target */
+      }
+      .preset-users {
+        justify-content: center;
+      }
+      .app-description {
+        font-size: 0.85rem;
+        padding: 12px;
+      }
+    }
   `]
 })
 export class AppComponent implements OnInit {
@@ -218,7 +300,6 @@ export class AppComponent implements OnInit {
   isLoading = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
   
-  // NEW: State for Avatar and Power Level
   userProfile = signal<any>(null);
   powerLevel = signal<number>(0);
 

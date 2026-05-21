@@ -46,7 +46,7 @@
   }
 
   .html-tooltip {
-    position: fixed;
+    position: absolute; /* CHANGED FROM fixed */
     background: rgba(15, 23, 42, 0.9);
     border: 1px solid rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(8px);
@@ -171,6 +171,32 @@
           transform: scale(1.2);
         }
       }
+    }
+  }
+}
+/* ADD THIS TO THE VERY BOTTOM OF matrix-chart.scss */
+@media (max-width: 600px) {
+  .matrix-chart-container {
+    height: 320px; /* Slightly shorter on mobile */
+
+    .time-machine-controls {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 15px;
+
+      label {
+        font-size: 0.75rem;
+      }
+
+      .cyber-slider {
+        width: 100%; /* Make slider stretch full width for easy thumb targeting */
+      }
+    }
+
+    .html-tooltip {
+      font-size: 0.75rem;
+      padding: 8px;
     }
   }
 }
