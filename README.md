@@ -1,59 +1,40 @@
-# DeepIndex
+# DeepIndex // Solar Core
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.11.
+**DeepIndex** is a predictive system analytics dashboard built with Angular. It correlates raw developer output (GitHub commits) against localized environmental telemetry—specifically NASA Solar Geomagnetic Storm data—to predict and visualize optimal coding efficiency cycles.
 
-## Development server
+By analyzing the intersection of space weather and coding habits, DeepIndex attempts to map how environmental factors might impact developer focus and productivity.
 
-To start a local development server, run:
+## 🌟 Features
 
-```bash
-ng serve
-```
+- **The Matrix Engine:** A custom-built, pure SVG pipeline chart that visualizes commit volume against calculated developer efficiency scores.
+- **Time Machine Scrub:** An interactive range slider that allows users to shift through historical records and view the exact environmental context for specific dates.
+- **Dynamic Cyberpunk Themes:** The UI reacts to the data. High efficiency triggers a "Neon Gold" theme, while lower efficiency shifts to a "Dark Rain" aesthetic.
+- **Space Weather Correlation:** Automatically fetches Coronal Mass Ejection (CME) and Geomagnetic Storm (GST) data from NASA's DONKI API, adjusting efficiency scores based on the Kp Index.
+- **Dual-Flow Architecture:** \* **Visitor Mode:** Live-fetches data directly from GitHub and NASA APIs for any searched username.
+  - **Owner Mode:** Syncs personal telemetry to a Supabase backend for persistent historical tracking.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## 🛠️ Tech Stack
 
-## Code scaffolding
+- **Frontend:** Angular 17+ (Standalone Components), TypeScript
+- **Styling:** SCSS, Custom CSS Grid/Flexbox
+- **Backend/Database:** Supabase
+- **External APIs:** GitHub REST API, NASA DONKI API
+- **Data Visualization:** Custom inline SVG with Cubic Bezier curve generation
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+---
 
-```bash
-ng generate component component-name
-```
+## 🚀 Local Environment Setup
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+To run this project locally, you must configure your environment variables. The project uses a specific `angular.json` configuration to safely swap in local environment files during development, keeping production credentials secure.
 
-```bash
-ng generate --help
-```
+### 1. Install Dependencies
 
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+Clone the repository and install the required packages:
 
 ```bash
-ng test
+npm install
 ```
 
-## Running end-to-end tests
+## Config for local environment
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+ng serve --configuration=local
