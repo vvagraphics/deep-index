@@ -60,7 +60,13 @@ import { DeepIndexService } from './services/deep-index.service';
         <div *ngIf="errorMessage()" class="error-msg">
           {{ errorMessage() }}
         </div>
-      </div>
+
+        <div *ngIf="dbPausedMessage()" class="warning-msg">
+          <strong>⚠️ Database Asleep:</strong> The free-tier database for this portfolio project has been paused due to inactivity. 
+          <br><br>
+          Please <a href="mailto:vvagraphics@gmail.com">contact me</a> or reach out on LinkedIn so I can wake it up and show you the full historical data!
+        </div>
+        </div>
 
       <app-matrix-chart *ngIf="liveData().length > 0" [data]="liveData()"></app-matrix-chart>
     </div>
@@ -262,6 +268,29 @@ import { DeepIndexService } from './services/deep-index.service';
       border-left: 3px solid #ff3333;
     }
 
+    /* 👇 ADD THESE STYLES 👇 */
+    .warning-msg {
+      margin-top: 15px;
+      color: #ffea00;
+      background: rgba(255, 170, 0, 0.1);
+      padding: 15px;
+      border-left: 3px solid #ffaa00;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    .warning-msg a {
+      color: #ff5500;
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    .warning-msg a:hover {
+      color: #ffaa00;
+    }
+    /* 👆 END ADD 👆 */
+
+    
+
     /* --- MOBILE RESPONSIVENESS REFINED --- */
     @media (max-width: 600px) {
       .dashboard-wrapper {
@@ -299,6 +328,8 @@ export class AppComponent implements OnInit {
   searchInput = signal<string>('vvagraphics'); 
   isLoading = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
+
+  dbPausedMessage = signal<boolean>(false);
   
   userProfile = signal<any>(null);
   powerLevel = signal<number>(0);
@@ -317,6 +348,7 @@ export class AppComponent implements OnInit {
 
     this.isLoading.set(true);
     this.errorMessage.set(null);
+    this.dbPausedMessage.set(false);
     this.searchInput.set(cleanUsername); 
 
     try {
@@ -344,7 +376,15 @@ export class AppComponent implements OnInit {
       this.liveData.set([]);
       this.userProfile.set(null);
       this.powerLevel.set(0);
-      this.errorMessage.set(`Could not analyze ${cleanUsername}. They may not exist or the API limit was hit.`);
+      const errorObj = err as Error;
+      
+      if (errorObj?.message === 'SUPABASE_DB_ERROR') {
+        this.dbPausedMessage.set(true);
+        this.errorMessage.set(null); // Hide standard error
+      } else {
+        this.errorMessage.set(`Could not analyze ${cleanUsername}. They may not exist or the API limit was hit.`);
+        this.dbPausedMessage.set(false);
+      }
     } finally {
       this.isLoading.set(false);
     }

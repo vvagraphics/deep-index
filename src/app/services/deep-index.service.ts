@@ -37,7 +37,11 @@ export class DeepIndexService {
            .select('date, commits, efficiency_score')
            .order('date', { ascending: true });
 
-         if (error) throw error;
+        //  if (error) throw error;
+        if (error) {
+           console.error("Supabase Error (Likely Paused):", error);
+           throw new Error('SUPABASE_DB_ERROR');
+         }
 
          // FIX 3: Added 'row: any' to satisfy TypeScript strict mode
          let historicalData: DataPoint[] = (dbData || []).map((row: any) => ({
